@@ -79,41 +79,46 @@
 
         /* --- 【核心修改】浮動組合包 (Wrapper) --- */
         /* 這是一個隱形的容器，用來把兩個元件包在一起定位 */
-        .floating-group {
-            position: fixed;
-            bottom: -300px; /* 初始隱藏 */
-            left: 50%;
-            transform: translateX(-50%);
-            width: 95%;
-            max-width: 420px;
-            z-index: 900;
-            display: flex;
-            flex-direction: column; /* 垂直排列 */
-            align-items: center; /* 子元件置中對齊 */
-            gap: 10px; /* 兩個元件中間的間距 */
-            transition: bottom 0.6s cubic-bezier(0.175, 0.885, 0.32, 1.275); /* 彈性滑入動畫 */
-        }
+.floating-group {
 
-        .floating-group.visible {
-            bottom: 20px;
-        }
+opacity: 0; /* 初始完全透明 */
+pointer-events: none; /* 隱藏時不可點擊 */
+    position: fixed;
+    bottom: -300px; /* 預設隱藏 */
+    left: 15px;     /* 距離左側間距 */
+    right: 15px;    /* 距離右側間距，讓 RWD 自動伸縮 */
+    max-width: 400px; /* 桌面版最大寬度 */
+    z-index: 900;
+    display: flex;
+    flex-direction: column;
+    align-items: stretch; /* 關鍵：強制子元件等寬 */
+    gap: 8px; /* 縮小間距，讓兩者看起來更像一組 */
+   
+    transition: bottom 0.6s cubic-bezier(0.175, 0.885, 0.32, 1.275), opacity 0.3s ease;
+
+}
+
+.floating-group.visible {
+    bottom: 20px; /* 觸發後的浮動高度 */
+opacity: 1; /* 顯示時恢復不透明 */
+    pointer-events: auto; /* 恢復點擊功能 */
+}
 
         /* --- 元件 A: 活動進度條 (Sticky Bar) --- */
-        .sticky-bar {
-            width: 100%; /* 填滿容器寬度 */
-            background: #fff;
-            box-shadow: 0 4px 15px rgba(0,0,0,0.15);
-            border-radius: 50px;
-            padding: 10px 20px;
-            cursor: pointer;
-            border: 2px solid #cc0000;
-            display: flex;
-            align-items: center;
-            justify-content: space-between;
-            position: relative;
-            /* 讓它在視覺上浮在 Just For You 上面 */
-            z-index: 2; 
-        }
+.sticky-bar {
+    width: auto; /* 由父容器 stretch 決定寬度 */
+    min-width: 0; /* 移除舊有的固定寬度 */
+    background: #fff;
+    box-shadow: 0 4px 20px rgba(0,0,0,0.1); /* 同步 JFY 陰影 */
+    border-radius: 8px; /* 改為方圓角 */
+    padding: 12px 15px;
+    border: none; /* 移除紅邊，視覺更乾淨 */
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    cursor: pointer;
+transition: opacity 0.3s ease, transform 0.2s ease;
+}
         .sticky-bar:hover {
             background-color: #fffafa;
         }
@@ -149,22 +154,24 @@
         }
 
         /* --- 元件 B: Just For You (仿照截圖樣式) --- */
-        .jfy-card {
-            width: 100%;
-            background: #fff;
-            border-radius: 8px; /* 方形圓角 */
-            box-shadow: 0 4px 20px rgba(0,0,0,0.1);
-            display: flex;
-            overflow: hidden;
-            position: relative;
-            height: 100px; /* 固定高度 */
-        }
-        .jfy-img {
-            width: 100px;
-            height: 100%;
-            object-fit: cover;
-            flex-shrink: 0;
-        }
+.jfy-card {
+    width: 100%;
+    background: #fff;
+    border-radius: 12px; /* 稍微加大圓角，更具現代感 */
+    box-shadow: 0 4px 20px rgba(0,0,0,0.08);
+    display: flex;
+    padding: 12px; /* 增加內距，讓圖片不貼邊 */
+    box-sizing: border-box;
+    position: relative;
+    height: auto; /* 移除固定高度，讓內容撐開 */
+    align-items: flex-start; /* 讓內容對齊頂部 */
+}        .jfy-img {
+    width: 80px;  /* 縮小圖片尺寸，符合截圖比例 */
+    height: 80px;
+    object-fit: cover;
+    border-radius: 8px; /* 圖片圓角 */
+    flex-shrink: 0;
+}
         .jfy-content {
             padding: 10px 30px 10px 12px; /* 右邊留空間給 X */
             display: flex;
@@ -207,31 +214,47 @@
 
 
         /* --- 完整提示區塊 (Modal) --- */
-        .modal-overlay {
-            position: fixed;
-            top: 0;
-            left: 0;
-            width: 100%;
-            height: 100%;
-            background: rgba(0,0,0,0.5);
-            z-index: 1000;
-            display: none;
-            justify-content: center;
-            align-items: center;
-        }
-        .modal-overlay.active {
-            display: flex;
-        }
-        .modal {
-            background: #fff;
-            width: 90%;
-            max-width: 400px;
-            border-radius: 12px;
-            padding: 25px;
-            position: relative;
-            text-align: center;
-            box-shadow: 0 10px 30px rgba(0,0,0,0.3);
-        }
+     /* --- 修改 Modal 遮罩層 --- */
+.modal-overlay {
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+   /* background: rgba(0,0,0,0.6);  稍微加深遮罩，強化放大後的沉浸感 */
+    z-index: 1000;
+    display: none;
+    justify-content: center;
+    align-items: center;
+    opacity: 0; /* 預設透明 */
+    transition: opacity 0.3s ease; /* 遮罩漸顯 */
+}
+
+/* 當 active 時顯示 */
+.modal-overlay.active {
+    display: flex;
+    opacity: 1;
+}
+.modal {
+    background: #fff;
+    width: 90%;
+    max-width: 400px;
+    border-radius: 12px;
+    padding: 25px;
+    position: relative;
+    text-align: center;
+    box-shadow: 0 10px 30px rgba(0,0,0,0.3);
+    
+    /* 初始狀態：縮小且稍微下偏，模擬從左下角 Bar 彈出的路徑 */
+    transform: scale(0.5); 
+    transition: transform 0.4s cubic-bezier(0.175, 0.885, 0.32, 1.275); 
+}
+
+/* 當 overlay active 時，Modal 放大回正常比例 */
+.modal-overlay.active .modal {
+    transform: scale(1);
+}
+
         .modal-close {
             position: absolute;
             top: 10px;
@@ -256,7 +279,7 @@
         }
         .modal-btn {
             display: block;
-            width: 100%;
+            
             padding: 12px;
             border: none;
             border-radius: 6px;
@@ -361,7 +384,7 @@
                 <div class="jfy-header">✨ FOR YOU</div>
                 <div class="jfy-link">住家「漏財阻斷」收納術：好好整理「這東西」，居住空間放大20%</div>
             </div>
-            <div class="jfy-close" onclick="closeJFY(event)">✕</div>
+           
         </div>
 
     </div>
@@ -384,6 +407,8 @@
         <button onclick="resetData()">重置數據</button>
         <button onclick="setReadCount(0)">設為：0篇</button>
         <button onclick="setReadCount(1)">設為：1篇</button>
+<button onclick="setReadCount(2)">設為：2篇</button>
+
         <button onclick="setReadCount(3)">設為：3篇 (達成)</button>
         <button onclick="toggleJFY()">隱藏/顯示 Just For You</button>
         <hr>
@@ -405,36 +430,40 @@
         updateUI();
 
         // --- 滾動偵測 ---
-        window.addEventListener('scroll', function() {
+
+
+window.addEventListener('scroll', function() {
             const scrollPosition = window.scrollY + window.innerHeight;
             const markerPosition = document.getElementById('scroll-marker').offsetTop;
 
             // 超過 50% 線
             if (scrollPosition > markerPosition) {
-                // 1. 顯示整組浮動元件
-                if (!isGroupVisible) {
-                    floatingGroup.classList.add('visible');
-                    isGroupVisible = true;
-                }
                 
-                // 2. 計數邏輯
+                // 1. 先處理計數邏輯（在顯示之前完成）
                 if (!hasReadCurrent) {
                     hasReadCurrent = true;
                     if (readCount < GOAL) {
                         readCount++;
                         localStorage.setItem('gvm_read_count', readCount);
-                        setTimeout(() => {
-                             updateUI();
-                             // 只有 Bar 會抖動特效
-                             stickyBar.style.transform = "scale(1.05)";
-                             setTimeout(() => stickyBar.style.transform = "scale(1)", 200);
-                        }, 600);
+                        updateUI(); // 先更新文字與數字，這時元件還在 bottom: -300px
                     }
+                }
+
+                // 2. 計數完成後，再顯示整組元件
+                // 使用者看到的瞬間就是正確的數字，不會有跳動感
+                if (!isGroupVisible) {
+                    floatingGroup.classList.add('visible');
+                    isGroupVisible = true;
                 }
             }
         });
 
-        // --- UI 更新邏輯 ---
+
+
+
+
+
+     // --- UI 更新邏輯 ---
         function updateUI() {
             const barTitle = document.getElementById('barTitle');
             const barText = document.getElementById('barText');
@@ -472,19 +501,57 @@
         }
 
         // --- 互動控制 ---
-        function openModal() {
-            document.getElementById('modalOverlay').classList.add('active');
-        }
 
-        function closeModal(e) {
-            if (e) e.stopPropagation();
-            document.getElementById('modalOverlay').classList.remove('active');
-            if(document.getElementById('noPrompt').checked) {
-                // 隱藏整組
-                floatingGroup.classList.remove('visible');
-            }
-        }
 
+
+       function openModal() {
+    const overlay = document.getElementById('modalOverlay');
+    overlay.style.display = 'flex'; // 先改變佈局
+    
+    // 強制重繪後加上 active，觸發 scale(1) 的動畫
+    setTimeout(() => {
+        overlay.classList.add('active');
+    }, 10); 
+}
+
+function openModal() {
+    // 1. 先讓 Sticky Bar 消失
+    stickyBar.style.opacity = "0";
+    stickyBar.style.pointerEvents = "none";
+    
+    // 2. 稍微延遲後（等 Bar 消失），再展開 Modal
+    setTimeout(() => {
+        const overlay = document.getElementById('modalOverlay');
+        overlay.style.display = 'flex';
+        setTimeout(() => {
+            overlay.classList.add('active');
+        }, 10);
+    }, 200); 
+}
+
+function closeModal(e) {
+    if (e) e.stopPropagation();
+    const overlay = document.getElementById('modalOverlay');
+    const noPrompt = document.getElementById('noPrompt').checked;
+
+    // 1. 先縮小 Modal
+    overlay.classList.remove('active');
+    
+    setTimeout(() => {
+        overlay.style.display = 'none';
+        
+        // 2. 判斷是否勾選「不要再提示我」
+        if (noPrompt) {
+            // 永久隱藏整組 (包含 Bar 與 JFY)
+            floatingGroup.classList.remove('visible');
+            // 這裡可以視需求加入 localStorage.setItem('hide_campaign', 'true');
+        } else {
+            // 恢復 Sticky Bar 顯示
+            stickyBar.style.opacity = "1";
+            stickyBar.style.pointerEvents = "auto";
+        }
+    }, 300); // 對應 CSS 的 transition 時間
+}
         // 關閉 Just For You (單獨關閉下方卡片)
         function closeJFY(e) {
             if (e) e.stopPropagation();
